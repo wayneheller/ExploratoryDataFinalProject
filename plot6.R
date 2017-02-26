@@ -1,0 +1,94 @@
+################################################################################
+# Exploratory Data Analysis - John's Hopkins University | Coursera             #
+# Week 4 Course Project                                                        #
+# Wayne Heller                                                                 #
+# 2/25/2017                                                                    #
+# Assignment- to recreate plots from the EPA National Emissions Inventory      #
+#                                                                              #
+#                                                                              #
+# Key Assumtions:                                                              #
+#     Data file summarySCC_PM25.rds is in the working directory                #
+#     Libaries ggplot2 and dplyr have been loaded                              #
+################################################################################
+
+# Loads the data.frame from the source file
+# First checks for the existence of the file and prints an error message if
+# not found
+readEmissionsData <- function() {
+    if(file.exists("summarySCC_PM25.rds")){
+        NEI <- readRDS("summarySCC_PM25.rds")
+        return(NEI)
+    }
+    else {
+        print("Set Working Directory to location of summarySCC_PM25.rds")
+        return(FALSE)
+    }
+}
+
+readSourceClassificationCodes <- function() {
+    
+    if(file.exists("Source_Classification_Code.rds")){
+        SCC <- readRDS("Source_Classification_Code.rds")
+        return(SCC)
+    }
+    else {
+        print("Set Working Directory to location of Source_Classification_Code.rds")
+        return(FALSE)
+    }
+}
+
+
+# Assignment: Compare emissions from motor vehicle sources in Baltimore City 
+# with emissions from motor vehicle sources in Los Angeles County, California 
+# (fips == "06037"). Which city has seen greater changes over time in 
+# motor vehicle emissions?
+
+createPlot6 <- function() {
+    
+    dfSCC <- readSourceClassificationCodes()
+    # check for error: data file not found
+    if(class(dfSCC)!="data.frame") {
+        stop()
+    }
+    
+    # Find the SCC codes where the SCC.Level.One contains "Mobile Sources"
+    motorVehicleSCCCodes <- dfSCC$SCC[grep("Mobile Sources", dfSCC$SCC.Level.One, 
+                                           fixed = TRUE)]
+    
+    # Read in the dataset
+    dfNEI <- readEmissionsData()
+    
+    # check for error: data file not found
+    if(class(dfNEI)!="data.frame") {
+        stop()
+    }
+    
+    # filter the results to just those from Motor Vehicles in Baltimore City
+    dfNEIFiltered <- dfNEI[dfNEI$SCC %in% motorVehicleSCCCodes & 
+                               dfNEI$fips %in% c("24510", "06037"), ]
+    
+    # Create City Label based on fips number
+    dfNEIFiltered$city <- ordered(dfNEIFiltered$fips,
+                         levels = c("24510", "06037"),
+                         labels = c("Baltimore City", "Los Angeles County"))
+        
+    # Group By Year and City 
+    byYearCity <- group_by(dfNEIFiltered, year, city)
+    # Sum up all the Emissions
+    dfSum <- summarize(byYearCity, sum(Emissions))
+    # Rename columns for convenience
+    names(dfSum) <- c('year', 'city', 'emissions')
+    
+    
+    # Plot the total amount of emissions by year in Kilotons breaking up each
+    # Type into a facet
+    
+    p <- ggplot(dfSum, aes(year, emissions / 1000)) + geom_point() + 
+        facet_grid(.~city) + geom_smooth(method = "lm", col="red", se=FALSE) +
+        labs(y="PM2.5 Emissions (Kilotons)", x="Year", 
+             title="PM2.5 Emissions in Los Angeles County Have Decreased More from 1999 to 2008 Compared to Baltimore City",
+             subtitle="From All Motor Vehicle Sources")
+    
+    ggsave("plot6.png", plot = p, units= "in", width = 11.0, height= 5.5)
+    
+}
