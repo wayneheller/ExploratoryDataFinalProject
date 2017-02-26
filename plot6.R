@@ -87,8 +87,10 @@ createPlot6 <- function() {
         facet_grid(.~city) + geom_smooth(method = "lm", col="red", se=FALSE) +
         labs(y="PM2.5 Emissions (Kilotons)", x="Year", 
              title="PM2.5 Emissions in Los Angeles County Have Decreased More from 1999 to 2008 Compared to Baltimore City",
-             subtitle="From All Motor Vehicle Sources")
+             subtitle="From All Motor Vehicle Sources") 
+             # + geom_text(data = c("foo", "bar"), aes(x = 2000, y = 7, size = 4, col= "red")) 
     
     ggsave("plot6.png", plot = p, units= "in", width = 11.0, height= 5.5)
+    
     
 }
