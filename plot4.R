@@ -6,7 +6,7 @@
 # Assignment- to recreate plots from the EPA National Emissions Inventory      #
 #                                                                              #
 #                                                                              #
-# Key Assumtions:                                                              #
+# Key Assumptions:                                                              #
 #     Data file summarySCC_PM25.rds is in the working directory                #
 #     Libaries ggplot2 and dplyr have been loaded                              #
 ################################################################################

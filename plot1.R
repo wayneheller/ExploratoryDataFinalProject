@@ -6,7 +6,7 @@
 # Assignment- to recreate plots from the EPA National Emissions Inventory      #
 #                                                                              #
 #                                                                              #
-# Key Assumtion: assumes data file summarySCC_PM25.rds is in the               #
+# Key Assumption: assumes data file summarySCC_PM25.rds is in the               #
 # working directory                                                            #
 ################################################################################
 
@@ -71,6 +71,7 @@ createPlot1 <- function() {
     plot(names(emissionsByYear), emissionsByYear / 1000000.0, 
          pch=20, type = "p", xlab="Year", ylab="PM2.5 Emissions (Megatons)")
     
+    # Plot linear regression line
     abline(lm(emissionsByYear / 1000000.0 ~ as.integer(names(emissionsByYear))), lwd = 2, col="red")
 
     title(main = "Total Emissions from PM2.5 have Decreased in the United States from 1999 to 2008")
